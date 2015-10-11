@@ -4,6 +4,22 @@ To help you get started with [angr](https://github.com/angr/angr), we've created
 These mostly stem from CTF problems solved with angr by Shellphish.
 Enjoy!
 
+## ReverseMe example: Defcamp CTF Qualification 2015 - Reversing 100
+
+Author: Fish Wang (github: @ltfish)
+
+Angr solves this challenge with almost zero user-interference.
+
+See the [script](./examples/defcamp_r100/solve.py) and the [binary](./examples/defcamp_r100/r100).
+
+## ReverseMe example: Defcamp CTF Qualification 2015 - Reversing 200
+
+Author: Fish Wang (github: @ltfish)
+
+Angr solves this challenge with almost zero user-interference. Veritesting is required to retrieve the flag promptly.
+
+The [script](./examples/defcamp_r200/solve.py) and the [binary](./examples/defcamp_r200/r200).
+It takes a few minutes to run on my laptop.
 
 ## ReverseMe example: MMA CTF 2015 - HowToUse
 
@@ -64,3 +80,11 @@ Author: Yan Shoshitaishvili (github: @Zardus)
 We solved this crackme with angr's help.
 The resulting script will help you understand how angr can be used for crackme assistance.
 You can find this script [here](./examples/whitehat_crypto400/whitehat_crypto400.py) and the binary [here](./examples/whitehat_crypto400/whitehat_crypto400).
+
+## CrackMe example: CSAW CTF 2015 Quals - Reversing 500, "wyvern"
+
+Author: Andrew Dutcher (github: @rhelmot)
+
+Angr can outright solve this challenge with very little assistance from the user.
+The script to do so is [here](./examples/csaw_wyvern/solve.py) and the binary is [here](./examples/csaw_wyvern/wyvern).
+
