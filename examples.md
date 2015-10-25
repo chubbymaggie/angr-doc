@@ -4,6 +4,34 @@ To help you get started with [angr](https://github.com/angr/angr), we've created
 These mostly stem from CTF problems solved with angr by Shellphish.
 Enjoy!
 
+## ReverseMe example: EKOPARTY CTF 2015 - rev 100
+
+Author: Fish Wang (github: @ltfish)
+
+This is a painful challenge to solve with angr. I should have done things in a smarter way.
+
+Here is the [binary](./examples/ekopartyctf2015_rev100/counter) and the [script](./examples/ekopartyctf2015_rev100/solve.py).
+
+## ReverseMe example: ASIS CTF Finals 2015 - fake
+
+Author: Fish Wang (github: @ltfish)
+
+The solution is pretty straight-forward.
+
+The [binary](./examples/asisctffinals2015_fake/fake) and the [script](./examples/asisctffinals2015_fake/solve.py).
+
+## ReverseMe example: ASIS CTF Finals 2015 - license
+
+Author: Fish Wang (github: @ltfish)
+
+This is a good example that showcases the following:
+
+- Create a custom file, and load it during symbolic execution.
+- Create an inline call to SimProcedure `strlen`, and use it to determine the length of a string in memory - even if the string may not be null-terminated.
+- `LAZY_SOLVES` should be disabled sometimes to avoid creating too many paths.
+
+Here are the [binary](./examples/asisctffinals2015_license/license) and the [script](./examples/asisctffinals2015_license/solve.py).
+
 ## ReverseMe example: Defcamp CTF Qualification 2015 - Reversing 100
 
 Author: Fish Wang (github: @ltfish)
@@ -26,7 +54,7 @@ It takes a few minutes to run on my laptop.
 Author: Andrew Dutcher (github: @rhelmot)
 
 We solved this simple reversing challenge with angr, since we were too lazy to reverse it or run it in Windows.
-The resulting [script](./examples/mma_howtouse/howtouse.py) shows how we grabbed the flag out of the [DLL](./examples/mma_howtouse/howtouse.dll).
+The resulting [script](./examples/mma_howtouse/solve.py) shows how we grabbed the flag out of the [DLL](./examples/mma_howtouse/howtouse.dll).
 
 
 ## CrackMe example: MMA CTF 2015 - SimpleHash
@@ -34,7 +62,7 @@ The resulting [script](./examples/mma_howtouse/howtouse.py) shows how we grabbed
 Author: Chris Salls (github: @salls)
 
 This crackme is 95% solveable with angr, but we did have to overcome some difficulties.
-The [script](./examples/mma_simplehash/mma_simplehash.py) describes the difficulties that were encountered and how we worked around them.
+The [script](./examples/mma_simplehash/solve.py) describes the difficulties that were encountered and how we worked around them.
 The binary can be found [here](./examples/mma_simplehash/simple_hash).
 
 
@@ -45,7 +73,7 @@ Author: Fish Wang (github: @ltfish)
 angr acts as a binary loader and an emulator in solving this challenge. 
 I didn’t have to load the driver onto my Windows box.
 
-The [script](./examples/flareon2015_10/flareon-solution-10.py) demonstrates how to hook at arbitrary program points without affecting the intended bytes to be executed (a zero-length hook). 
+The [script](./examples/flareon2015_10/solve.py) demonstrates how to hook at arbitrary program points without affecting the intended bytes to be executed (a zero-length hook). 
 It also shows how to read bytes out of memory and decode as a string.
 
 By the way, here is the [link](https://www.fireeye.com/content/dam/fireeye-www/global/en/blog/threat-research/flareon/2015solution10.pdf) to the intended solution from FireEye.
@@ -55,7 +83,7 @@ By the way, here is the [link](https://www.fireeye.com/content/dam/fireeye-www/g
 
 Author: Chris Salls (github: @salls)
 
-This [reversing challenge](./examples/flareon2015_2/very_success) is simple to solve almost entirely with angr, and a lot faster than trying to reverse the password checking function. The script is [here](./examples/flareon2015_2/flareon-solution-2.py)
+This [reversing challenge](./examples/flareon2015_2/very_success) is simple to solve almost entirely with angr, and a lot faster than trying to reverse the password checking function. The script is [here](./examples/flareon2015_2/solve.py)
 
 
 ## CrackMe example: Layer7 CTF 2015 - Windows challenge OnlyOne
@@ -79,7 +107,7 @@ Author: Yan Shoshitaishvili (github: @Zardus)
 
 We solved this crackme with angr's help.
 The resulting script will help you understand how angr can be used for crackme assistance.
-You can find this script [here](./examples/whitehat_crypto400/whitehat_crypto400.py) and the binary [here](./examples/whitehat_crypto400/whitehat_crypto400).
+You can find this script [here](./examples/whitehat_crypto400/solve.py) and the binary [here](./examples/whitehat_crypto400/whitehat_crypto400).
 
 ## CrackMe example: CSAW CTF 2015 Quals - Reversing 500, "wyvern"
 

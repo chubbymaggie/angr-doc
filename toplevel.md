@@ -4,17 +4,19 @@ Top-level interfaces
 So you've loaded a project. Now what?
 
 This document explains all the attributes that are available directly from instances of `angr.Project`.
-Examples will be done with `import angr, monkeyhex; p = angr.Project('/bin/true')`.
 
 # Basic properties
 ```python
->>> p.arch
+>>> import angr, monkeyhex, claripy
+>>> b = angr.Project('/bin/true')
+
+>>> b.arch
 <Arch AMD64 (LE)>
->>> p.entry
+>>> b.entry
 0x401410
->>> p.filename
+>>> b.filename
 '/bin/true'
->>> p.loader
+>>> b.loader
 <Loaded true, maps [0x400000:0x4004000]>
 ```
 - *arch* is an instance of an `archinfo.Arch` object for whichever architecture the program is compiled.
@@ -26,12 +28,12 @@ Examples will be done with `import angr, monkeyhex; p = angr.Project('/bin/true'
 
 # Analyses and Surveyors
 ```python
->>> p.analyses
+>>> b.analyses
 <angr.analysis.Analyses object at 0x7f5220d6a890>
->>> p.surveyors
+>>> b.surveyors
 <angr.surveyor.Surveyors object at 0x7f52191b9dd0>
 
->>> filter(lambda x: '_' not in x, dir(p.analyses))
+>>> filter(lambda x: '_' not in x, dir(b.analyses))
 ['BackwardSlice',
  'BinDiff',
  'BoyScout',
@@ -45,7 +47,7 @@ Examples will be done with `import angr, monkeyhex; p = angr.Project('/bin/true'
  'VFG',
  'Veritesting',
  'XSleak']
->>> filter(lambda x: '_' not in x, dir(p.surveyors))
+>>> filter(lambda x: '_' not in x, dir(b.surveyors))
 ['Caller', 'Escaper', 'Executor', 'Explorer', 'Slicecutor', 'started']
 ```
 
@@ -62,28 +64,28 @@ Note that while surveyors are cool, an alternative to them is Path Groups (below
 
 # The factory
 
-`p.factory`, like `p.analyses` and `p.surveyors`, is a container object that has a lot of cool stuff in it.
+`b.factory`, like `b.analyses` and `b.surveyors`, is a container object that has a lot of cool stuff in it.
 It is not a factory in the java sense, it is merely a home for all the functions that produce new instances of important Angr classes and should be sitting on Project.
 
 ```python
->>> block = p.factory.block(addr=0x10000)
->>> block = p.factory.block(addr=0x20000, insn_bytes='\xc3')
->>> block = p.factory.block(addr=0x10000, num_ins=1)
+>>> block = b.factory.block(addr=b.entry)
+>>> block = b.factory.block(addr=b.entry, insn_bytes='\xc3')
+>>> block = b.factory.block(addr=b.entry, num_inst=1)
 
->>> state = p.factory.blank_state(addr=0x10000)
->>> state = p.factory.entry_state(args=['./program', angr.StringSpec(sym_length=20)])
->>> state = p.factory.full_init_state(args=['./program', angr.StringSpec(sym_length=20)])
+>>> state = b.factory.blank_state(addr=b.entry)
+>>> state = b.factory.entry_state(args=['./program', angr.StringSpec(sym_length=20)])
+>>> state = b.factory.full_init_state(args=['./program', angr.StringSpec(sym_length=20)])
 
->>> path = p.factory.path()
->>> path = p.factory.path(state)
+>>> path = b.factory.path()
+>>> path = b.factory.path(state)
 
->>> group = p.factory.path_group()
->>> group = p.factory.path_group(path)
->>> group = p.factory.path_group([path, state])
+>>> group = b.factory.path_group()
+>>> group = b.factory.path_group(path)
+>>> group = b.factory.path_group([path, state])
 
->>> strlen = p.factory.callable(0x10000)
->>> strlen("hello")
-5
+>>> strlen_addr = b.loader.main_bin.plt['strlen']
+>>> strlen = b.factory.callable(strlen_addr)
+>>> assert claripy.is_true(strlen("hello") == 5)
 ```
 
 - *factory.block* is the angr's lifter. passing it an address will lift a basic block of code from the binary at that address, and return an angr Block object that can be used to retrieve multiple representations of that block. More below.
@@ -119,7 +121,7 @@ The `chroot` option allows you to specify an optional root to use while using th
 ```python
 >>> import simuvex
 >>> files = {'/dev/stdin': simuvex.storage.file.SimFile("/dev/stdin", "r", size=30)}
->>> s = p.factory.entry_state(fs=files, concrete_fs=True, chroot="angr-chroot/")
+>>> s = b.factory.entry_state(fs=files, concrete_fs=True, chroot="angr-chroot/")
 ```
 
 This example will create a state which constricts at most 30 symbolic bytes from being read from stdin and will cause references to files to be resolved concretely within the new root directory `angr-chroot`.
@@ -138,14 +140,13 @@ Also, you can definitely just `call(*args)` a callable to get the return value o
 # Hooking
 ```python
 >>> def set_rax(state):
->>>    state.regs.rax = 10
->>>
+...    state.regs.rax = 10
 
->>> p.hook(0x10000, set_rax, length=5)
->>> p.is_hooked(0x10000)
+>>> b.hook(0x10000, set_rax, length=5)
+>>> b.is_hooked(0x10000)
 True
->>> p.unhook(0x10000)
->>> p.set_sim_procedure(p.loader.main_binary, 'strlen', simuvex.Procedures['stubs']['ReturnUnconstrained'])
+>>> b.unhook(0x10000)
+>>> b.set_sim_procedure(b.loader.main_bin, 'strlen', simuvex.SimProcedures['stubs']['ReturnUnconstrained'])
 ```
 
 A hook is a modification of how program execution should work.
