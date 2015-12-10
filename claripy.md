@@ -10,17 +10,6 @@ Internally, Claripy seamlessly mediates the co-operation of multiple disparate b
 Most users of Angr will not need to interact directly with Claripy (except for, maybe, claripy AST objects, which represent symbolic expressions) -- SimuVEX handles most interactions with Claripy internally.
 However, for dealing with expressions, an understanding of Claripy might be useful.
 
-## Frontends
-
-The main point of interaction with Claripy are the Claripy frontends.
-These frontends interact with the backends in different ways.
-For example, the `FullFrontend` is a frontend to support backends that must track state (i.e., such as the Z3 backend, which tracks state in the way of a Z3 constraint solver object).
-On the other hand, `LightFrontend` is a faster frontend, designed for backends that do not track state (i.e., the VSA backend or the purely concrete backend).
-Additionally, `CompositeFrontend` extends on `FullFrontend`, implementing optimizations that solve smaller sets of constraints to speed up constraint solving.
-
-For symbolic uses, the `claripy.Solver()` function will create a Z3-backed `FullFrontend`.
-This is the entry-point to Claripy for most users.
-
 ## Claripy ASTs
 
 Claripy ASTs abstract away the differences between the constructs that Claripy supports.
@@ -31,9 +20,9 @@ Currently, Claripy supports the following types of ASTs:
 
 | Name | Description | Supported By (Claripy Backends) | Example Code |
 |------|-------------|-----------------------------|---------------|
-| BV | This is a bitvector, whether symbolic (with a name) or concrete (with a value). It has a size (in bits). | BackendConcrete, BackendVSA, BackendZ3 | Create a 32-bit symbolic bitvector "x": `claripy.BV('x', 32)`. Create a 32-bit bitvectory with the value `0xc001b3475`: `claripy.BVV(0xc001b3a75, 32)`. Create a 32-bit "strided interval" (see VSA documentation) that can be any divisible-by-10 number between 1000 and 2000: `claripy.SI(name='x', bits=32, lower_bound=1000, upper_bound=2000, stride=10)`  |
+| BV | This is a bitvector, whether symbolic (with a name) or concrete (with a value). It has a size (in bits). | BackendConcrete, BackendVSA, BackendZ3 | Create a 32-bit symbolic bitvector "x": `claripy.BVS('x', 32)`. Create a 32-bit bitvectory with the value `0xc001b3475`: `claripy.BVV(0xc001b3a75, 32)`. Create a 32-bit "strided interval" (see VSA documentation) that can be any divisible-by-10 number between 1000 and 2000: `claripy.SI(name='x', bits=32, lower_bound=1000, upper_bound=2000, stride=10)`  |
 | FP | This is a floating-point number, whether symbolic (with a name) or concrete (with a value). | BackendConcrete, BackendZ3 | TODO  |
-| Bool | This is a boolean operation (True or False). | BackendConcrete, BackendVSA, BackendZ3 | `claripy.BoolVal(True)`, or `claripy.true` or `claripy.false`, or by comparing two ASTs (i.e., `claripy.BV('x', 32) < claripy.BV('y', 32)` |
+| Bool | This is a boolean operation (True or False). | BackendConcrete, BackendVSA, BackendZ3 | `claripy.BoolV(True)`, or `claripy.true` or `claripy.false`, or by comparing two ASTs (i.e., `claripy.BVS('x', 32) < claripy.BVS('y', 32)` |
 
 All of the above creation code returns claripy.AST objects, on which operations can then be carried out.
 
@@ -47,30 +36,16 @@ ASTs provide several useful operations.
 # Size - you can get the size of an AST with .size()
 >>> assert bv.size() == 32
 
-# Identity - claripy allows one to test for identity. This is a conservative
-# estimation. True means that the objects are definitely identical. False means
-# that it's hard to tell (this happens in the presense of constraint solving, for
-# example.
->>> assert claripy.is_identical(bv, bv)
-
 # Reversing - .reversed is the reversed version of the BVV
->>> assert claripy.is_identical(bv.reversed, claripy.BVV(0x44434241, 32))
->>> # assert bv.reversed.reversed is bv
-# TODO: FUCKING FIX THIS
+>>> assert bv.reversed is claripy.BVV(0x44434241, 32)
+>>> assert bv.reversed.reversed is bv
 
 # Depth - you can get the depth of the AST
 >>> print bv.depth
->>> assert bv.depth == 2
->>> x = claripy.BV('x', 32)
->>> assert (x+bv).depth == 3
->>> assert ((x+bv)/10).depth == 4
-# TODO: ALSO FUCKING FIX THIS
-
-# If you want to interact with the underlying object, you can call '.model'.
-# Note that, when symbolic variables are involved, this might *still* return an
-# AST
->>> assert type(bv.model) is claripy.bv.BVV # not to be confused with claripy.BVV, claripy.bv.BVV is a python concrete bitvector representation
->>> assert isinstance((x+bv).model, claripy.ast.Base) # no model is available for symbolic expressions
+>>> assert bv.depth == 1
+>>> x = claripy.BVS('x', 32)
+>>> assert (x+bv).depth == 2
+>>> assert ((x+bv)/10).depth == 3
 ```
 
 Applying a condition (==, !=, etc) on ASTs will return an AST that represents the condition being carried out.
@@ -82,7 +57,7 @@ For example:
 
 >>> p = bv == bv
 >>> assert isinstance(p, claripy.ast.Bool)
->>> assert p.model is True
+>>> assert p.is_true()
 ```
 
 You can combine these conditions in different ways.
@@ -109,7 +84,6 @@ In general, Claripy supports all of the normal python operations (+, -, |, ==, e
 | Or | Logical Or (on boolean expressions) | `claripy.Or(x == y, y < 10)` |
 | Not | Logical Not (on a boolean expression) | `claripy.Not(x == y)` is the same as `x != y` |
 | If | An If-then-else | Choose the maximum of two expressions: `claripy.If(x > y, x, y)` |
-| is_identical | Check to see if two expressions are identical. | `claripy.is_identical(x, y)` |
 | ULE | Unsigned less than or equal to. | Check if x is less than or equal to y: `claripy.ULE(x, y)` |
 | ULT | Unsigned less than. | Check if x is less than y: `claripy.ULT(x, y)` |
 | UGE | Unsigned greater than or equal to. | Check if x is greater than or equal to y: `claripy.UGE(x, y)` |
@@ -117,14 +91,26 @@ In general, Claripy supports all of the normal python operations (+, -, |, ==, e
 
 **NOTE:** The default python `>`, `<`, `>=`, and `<=` are signed in Claripy, to reflect their behavior in Z3. You will most likely want to use the unsigned operations, instead.
 
-## Claripy Solvers
+## Frontends
 
-Claripy performs constraint solving, via Z3, through the claripy.Solver class. These work much like Z3 solvers:
+The main point of interaction with Claripy are the Claripy frontends.
+These frontends expose an API to interpret ASTs in different ways and return usable values.
+There are several different frontends.
+
+| Name | Description |
+|------|-------------|
+| FullFrontend | This is analogous to a `z3.Solver()`. It is a frontend that tracks constraints on symbolic variables and uses a constraint solver (currently, Z3) to evaluate symbolic expressions. |
+| LightFrontend | This frontend uses VSA to reason about values. It is an *approximating* frontend, but produces values without performing constraint solves. |
+| HybridFrontend | This frontend combines VSA and Z3 to allow for *approximating* values. You can specify whether or not you want an exact result from your evaluations, and this frontend does the rest. |
+| CompositeFrontend | This frontend implements optimizations that solve smaller sets of constraints to speed up constraint solving. |
+| ReplacementFrontend | This frontend allows the replacement of expressions on-the-fly. It is used as a helper by other frontends and can be used directly to implement exotic analyses. |
+
+Some examples of frontend usage:
 
 ```python
 # create the solver and an expression
->>> s = claripy.Solver()
->>> x = claripy.BV('x', 8)
+>>> s = claripy.Solver() # this is an alias to claripy.FullFrontend
+>>> x = claripy.BVS('x', 8)
 
 # now let's add a constraint on x
 >>> s.add(claripy.ULT(x, 5)) 

@@ -18,6 +18,7 @@ def test_examples():
                            'csaw_wyvern', 
                            'layer7_onlyone', # Runs out of memory on the test machine
                            'whitehat_crypto400', # The binary must be ran in a privileged docker container
+                           '9447_nobranch', # takes at least an hour to run
                            ):
             continue
         yield exampletest_single, example_dir
@@ -41,7 +42,7 @@ def doctest_single(md_file):
 
     def try_running(line, i):
         try:
-            exec(line, env)
+            exec line in env
         except Exception as e:
             raise Exception('Error on line %d of %s: %s' % (i+1, md_file, e))
 

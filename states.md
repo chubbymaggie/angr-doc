@@ -49,7 +49,7 @@ If you want to store content in the state's memory or registers, you'll need to 
 
 # While we're at it, we can do various operations on these bitvectors:
 >>> aa = aaaa[31:16] # this extracts the most significant 16 bits
->>> aa00 = aaaa & s.BVV(0xffff0000, 32)
+>>> aa00 = aaaa & s.se.BVV(0xffff0000, 32)
 >>> aaab = aaaa + 1
 >>> aaaa = s.se.Concat(aaaa, aaaa)
 
@@ -117,17 +117,17 @@ Of course, there are other ways to encounter symbolic expression than merging. F
 ```python
 # This creates a simple symbolic expression: just a single symbolic bitvector by itself. The bitvector is 32-bits long.
 # An auto-incrementing numerical ID, and the size, are appended to the name, since names of symbolic bitvectors must be unique.
->>> v = s.se.BV("some_name", 32)
+>>> v = s.se.BVS("some_name", 32)
 
 # If you want to prevent appending the ID and size to the name, you can, instead, do:
->>> v = s.se.BV("some_name", 32, explicit_name=True)
+>>> v = s.se.BVS("some_name", 32, explicit_name=True)
 ```
 
 Symbolic expressions can be interacted with in the same way as normal (concrete) bitvectors. In fact, you can even mix them:
 
 ```python
 # Create a concrete and a symbolic expression
->>> v = s.BV("some_name", 32)
+>>> v = s.se.BVS("some_name", 32)
 >>> aaaa = s.se.BVV(0x41414141, 32)
 
 # Do operations involving them, and retrieve possible numerical solutions
@@ -141,7 +141,8 @@ Symbolic expressions can be interacted with in the same way as normal (concrete)
 
 # You can even tell *which* variables make up a given expression.
 >>> assert s.se.variables(aaaa) == set()
->>> assert s.se.variables(aaaa + v) == { "some_name_4_32" } # that's the ID and size appended to the name
+>>> #assert s.se.variables(aaaa + v) == { "some_name_4_32" } # that's the ID and size appended to the name
+# This assertion will fail because it depends on precisely the number of symbolic values previously created
 ```
 
 As you can see, symbolic and concrete expressions are pretty interchangeable, which is an extremely useful abstraction provided by SimuVEX. You might also notice that, when you read from memory locations that were never written to, you receive symbolic expressions:
@@ -154,7 +155,7 @@ As you can see, symbolic and concrete expressions are pretty interchangeable, wh
 >>> assert s.se.symbolic(m)
 
 # Along with the ID and length, the address at which this expression originated is also added to the name
->>> assert s.se.variables(m) == { "mem_bbbb0000_5_64" }
+>>> #assert s.se.variables(m) == { "mem_bbbb0000_5_64" }
 
 # And, of course, we can get the numerical or string solutions for the expression
 >>> print s.se.any_n_int(m, 10)
