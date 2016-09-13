@@ -14,8 +14,14 @@ Factory
 Paths & Path Groups
 -------------------
 
-.. automodule:: angr.path_group
 .. automodule:: angr.path
+.. automodule:: angr.path_group
+.. automodule:: angr.exploration_techniques
+.. automodule:: angr.exploration_techniques.dfs
+.. automodule:: angr.exploration_techniques.explorer
+.. automodule:: angr.exploration_techniques.looplimiter
+.. automodule:: angr.exploration_techniques.threading
+.. automodule:: angr.exploration_techniques.veritesting
 .. automodule:: angr.path_hierarchy
 .. automodule:: angr.pathprioritizer
 
@@ -28,6 +34,7 @@ Knowledge Base
 .. automodule:: angr.knowledge.data
 .. automodule:: angr.knowledge.function
 .. automodule:: angr.knowledge.function_manager
+    :members: FunctionManager
 
 Analysis
 --------
@@ -44,7 +51,7 @@ Analysis
 .. automodule:: angr.analyses.cfg_base
 .. automodule:: angr.analyses.cfg_fast
 .. automodule:: angr.analyses.cfg_node
-.. automodule:: angr.analysesc.code_location
+.. automodule:: angr.analyses.code_location
 .. automodule:: angr.analyses.datagraph_meta
 .. automodule:: angr.analyses.ddg
 .. automodule:: angr.analyses.dfg
